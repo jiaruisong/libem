@@ -33,6 +33,7 @@ schema = {
 def func(left, right) -> dict:
     start = time.time()
 
+    prompt_start = time.time()
     system_prompt = Prompt.join(
         prompt.role(),
         prompt.rules(),
@@ -56,7 +57,11 @@ def func(left, right) -> dict:
         *shots,
         {"role": "user", "content": match_prompt},
     ]
+    prompt_end = time.time()
+    prompt_latency = prompt_end - prompt_start
+    libem.debug(f"Prompt creation latency: {prompt_latency:.4f} seconds")
 
+    model_start = time.time()
     model_output = model.call(
         prompt=_prompt,
         tools=parameter.tools(),
@@ -70,7 +75,15 @@ def func(left, right) -> dict:
                 f"[match] model output:\n"
                 f"{model_output}")
 
+    model_end = time.time()
+    model_latency = model_end - model_start
+    libem.debug(f"Overall Model call latency: {model_latency:.4f} seconds")
+
+    parse_start = time.time()
     output = parse_output(model_output)
+    parse_end = time.time()
+    parse_latency = parse_end - parse_start
+    libem.debug(f"Output parsing latency: {parse_latency:.4f} seconds")
 
     libem.trace.add({"match": {"left": left, "right": right,
                                "prompt": _prompt,
