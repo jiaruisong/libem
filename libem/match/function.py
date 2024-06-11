@@ -79,11 +79,7 @@ def func(left, right) -> dict:
     model_latency = model_end - model_start
     libem.debug(f"Overall Model call latency: {model_latency:.4f} seconds")
 
-    parse_start = time.time()
     output = parse_output(model_output)
-    parse_end = time.time()
-    parse_latency = parse_end - parse_start
-    libem.debug(f"Output parsing latency: {parse_latency:.4f} seconds")
 
     libem.trace.add({"match": {"left": left, "right": right,
                                "prompt": _prompt,
